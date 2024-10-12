@@ -1,8 +1,11 @@
-public class S3Config {
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 
+public class S3Config {
     private final AwsSessionCredentials credentials;
 
-    public S3Provider() {
+    public S3Config() {
         this.credentials = AwsSessionCredentials.create(
                 System.getenv("AWS_ACCESS_KEY_ID"),
                 System.getenv("AWS_SECRET_ACCESS_KEY"),
