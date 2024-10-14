@@ -1,1 +1,3 @@
-Main.class
+ConectarComBD.class
+OperacaoAmazon.class
+S3Config.class
