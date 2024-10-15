@@ -1,3 +1,5 @@
-ConectarComBD.class
-OperacaoAmazon.class
-S3Config.class
+DBConnectionProvider.class
+Main.class
+S3Provider.class
+OperacoesBucket.class
+Leitor.class

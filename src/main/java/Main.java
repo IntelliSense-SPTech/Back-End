@@ -1,45 +1,62 @@
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+
+import javax.sql.DataSource;  // Certifique-se de que você importou DataSource
+import java.sql.Connection;  // Importar Connection
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.io.IOException;
-import software.amazon.awssdk.services.s3.S3Client;
 
 public class Main {
     public static void main(String[] args) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        S3Config s3Config = new S3Config();
-        S3Client s3Client = s3Config.getS3Client();
-        LeituraArquivo leitura = new LeituraArquivo(s3Client);
-        ConectarComBD bd = new ConectarComBD();
-        OperacaoAmazon operacao = new OperacaoAmazon(s3Client);
+        DBConnectionProvider dbConnectionProvider = new DBConnectionProvider();
+        JdbcTemplate jdbcTemplate = null;
+        S3Provider s3Provider = new S3Provider();
+        OperacoesBucket operacoesBucket = new OperacoesBucket(s3Provider);
+        Leitor leitor = new Leitor(operacoesBucket);
 
-        String bucketName = "nome-do-seu-bucket";
-        String arquivoKey = "arquivo.xlsx";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        // Acessando a variável de ambiente
+        String bucketName = System.getenv("S3_BUCKET_NAME");
+        String arquivoKey = "OcorrenciaMensal(Criminal)-EstadoSP_20241007_134342.xlsx";
 
         try {
-            // Log de quando o processo começa
-            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Iniciando o processo de leitura do arquivo do S3.");
+            // Tenta obter a conexão
+            jdbcTemplate = dbConnectionProvider.getConnection();
+            Connection connection = null;
 
-            // Ler e extrair dados do S3
-            leitura.lerArquivoExcel(bucketName, arquivoKey);
-            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Arquivo '" + arquivoKey + "' obtido do bucket '" + bucketName + "'.");
+            try {
+                // Se a conexão for bem-sucedida, loga a mensagem
+                connection = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
+                System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Conexão com o banco de dados estabelecida com sucesso.");
 
-            // Log de quando o processo de análise começa
-            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Iniciando análise do arquivo '" + arquivoKey + "'.");
+                // Log de quando o processo começa
+                System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Iniciando o processo de leitura do arquivo do S3.");
 
-            // Simulação de análise do arquivo (pode ser leitura, processamento, etc.)
-            // Insere dados no banco de dados
-            bd.inserirDados("Dado a ser inserido");
+                // Ler o arquivo do S3
+                leitor.lerArquivo(bucketName, arquivoKey);
 
-            // Log de quando os dados são enviados para o BD
-            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Dados enviados para o banco de dados com sucesso.");
+                // Log de análise do arquivo
+                System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Análise do arquivo '" + arquivoKey + "' concluída.");
 
-        } catch (IOException e) {
-            // Log de erro ao tentar obter ou analisar o arquivo
-            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Erro ao obter ou analisar o arquivo: " + e.getMessage());
-            e.printStackTrace();
+            } catch (DataAccessException e) {
+                // Log de erro de conexão
+                System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Falha ao estabelecer a conexão com o banco de dados: " + e.getMessage());
+            } finally {
+                // Fechar a conexão se ela foi estabelecida
+                if (connection != null) {
+                    try {
+                        DataSourceUtils.releaseConnection(connection, jdbcTemplate.getDataSource());
+                    } catch (Exception e) {
+                        System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Erro ao fechar a conexão: " + e.getMessage());
+                    }
+                }
+            }
+
         } catch (Exception e) {
-            // Log de erro ao tentar inserir dados no banco de dados
-            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Erro ao inserir dados no banco de dados: " + e.getMessage());
+            // Log de erro genérico
+            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Erro: " + e.getMessage());
             e.printStackTrace();
         }
 
