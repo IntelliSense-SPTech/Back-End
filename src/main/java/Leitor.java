@@ -72,7 +72,7 @@ public class Leitor {
                         for (int i = 0; i < 12; i++) {
                             jdbcTemplate.update("INSERT INTO crimes (especificacao, qtd_casos, ano, mes) VALUES (?, ?, ?, ?)",
                                     especificacao, quantidades[i], 2024, i + 1);
-                            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Foi inserido no banco: " + especificacao + ", Mês: " + (i + 1) + ", Casos: " + quantidades[i]);
+                            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Foi lido e inserido no banco de dados: " + especificacao + ", Mês: " + (i + 1) + ", Casos: " + quantidades[i]);
                         }
                     } else {
                         System.out.println("Linha " + row.getRowNum() + " está vazia ou a célula de especificação é nula.");

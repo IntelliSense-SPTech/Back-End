@@ -27,10 +27,12 @@ public class Main {
                 connection = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
                 System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Conexão com o banco de dados estabelecida com sucesso.");
                 System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Iniciando o processo de leitura do arquivo do S3.");
+                System.out.println("");
 
                 boolean leituraBemSucedida = leitor.lerArquivo(bucketName, arquivoKey);
 
                 if (leituraBemSucedida) {
+                    System.out.println("");
                     System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Análise do arquivo '" + arquivoKey + "' concluída.");
                 } else {
                     System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Não foi possível ler o arquivo '" + arquivoKey + "'.");
