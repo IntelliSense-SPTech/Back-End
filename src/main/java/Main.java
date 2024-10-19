@@ -5,6 +5,8 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -16,8 +18,15 @@ public class Main {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+        // Nome do bucket S3
         String bucketName = System.getenv("S3_BUCKET_NAME");
-        String arquivoKey = "OcorrenciaMensal(Criminal)-EstadoSP_20241007_134342.xlsx";
+
+        // Lista de chaves dos arquivos a serem processados
+        List<String> arquivoKeys = Arrays.asList(
+                "OcorrenciaMensal(Criminal)-Grande São Paulo (exclui a Capital)_20240917_174302.xlsx",
+                "OcorrenciaMensal(Criminal)-Capital_20240917_174245.xlsx",
+                "OcorrenciaMensal(Criminal)-Santos_20240917_174314.xlsx"
+        );
 
         try {
             jdbcTemplate = dbConnectionProvider.getConnection();
@@ -26,16 +35,22 @@ public class Main {
             try {
                 connection = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
                 System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Conexão com o banco de dados estabelecida com sucesso.");
-                System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Iniciando o processo de leitura do arquivo do S3.");
-                System.out.println("");
 
-                boolean leituraBemSucedida = leitor.lerArquivo(bucketName, arquivoKey);
-
-                if (leituraBemSucedida) {
+                // Itera sobre cada arquivo na lista
+                for (String arquivoKey : arquivoKeys) {
+                    System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Iniciando o processo de leitura do arquivo do S3: " + arquivoKey);
                     System.out.println("");
-                    System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Análise do arquivo '" + arquivoKey + "' concluída.");
-                } else {
-                    System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Não foi possível ler o arquivo '" + arquivoKey + "'.");
+
+                    // Tenta ler o arquivo e processá-lo
+                    boolean leituraBemSucedida = leitor.lerArquivo(bucketName, arquivoKey);
+
+                    // Verifica se a leitura foi bem-sucedida
+                    if (leituraBemSucedida) {
+                        System.out.println("");
+                        System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Análise do arquivo '" + arquivoKey + "' concluída.");
+                    } else {
+                        System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Não foi possível ler o arquivo '" + arquivoKey + "'.");
+                    }
                 }
 
             } catch (DataAccessException e) {
