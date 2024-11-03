@@ -1,5 +1,6 @@
 DBConnectionProvider.class
 Main.class
-S3Provider.class
+Leitor$1.class
 OperacoesBucket.class
 Leitor.class
+S3Provider.class

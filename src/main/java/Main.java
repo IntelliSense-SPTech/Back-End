@@ -28,6 +28,12 @@ public class Main {
                 "OcorrenciaMensal(Criminal)-Santos_20240917_174314.xlsx"
         );
 
+        // Verificação de conexão com S3
+        if (!s3Provider.testConnection()) {
+            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Erro ao conectar com o S3. A aplicação será encerrada.");
+            System.exit(1);
+        }
+
         try {
             jdbcTemplate = dbConnectionProvider.getConnection();
             Connection connection = null;
@@ -47,7 +53,6 @@ public class Main {
                     // Verifica se a leitura foi bem-sucedida
                     if (leituraBemSucedida) {
                         System.out.println("");
-                        System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Análise do arquivo '" + arquivoKey + "' concluída.");
                     } else {
                         System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Não foi possível ler o arquivo '" + arquivoKey + "'.");
                     }
