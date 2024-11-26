@@ -5,16 +5,17 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 
-public class Main {
+public class SistemaIntelliSense {
     public static void main(String[] args) {
         DBConnectionProvider dbConnectionProvider = new DBConnectionProvider();
         JdbcTemplate jdbcTemplate = null;
         S3Provider s3Provider = new S3Provider();
         OperacoesBucket operacoesBucket = new OperacoesBucket(s3Provider);
-        Leitor leitor = new Leitor(operacoesBucket);
+        BancoDados bancoDados = new BancoDados();
+        Leitor leitor = new Leitor(operacoesBucket, bancoDados);
+
+
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 

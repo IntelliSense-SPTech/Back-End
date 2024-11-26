@@ -1,12 +1,10 @@
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.dao.DataAccessException;
 
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -15,11 +13,13 @@ public class Leitor {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     private final JdbcTemplate jdbcTemplate;
     private final OperacoesBucket operacoesBucket;
+    private final BancoDados bancoDados;
 
-    public Leitor(OperacoesBucket operacoesBucket) {
+    public Leitor(OperacoesBucket operacoesBucket, BancoDados bancoDados) {
         DBConnectionProvider dbConnectionProvider = new DBConnectionProvider();
         this.jdbcTemplate = dbConnectionProvider.getConnection();
         this.operacoesBucket = operacoesBucket;
+        this.bancoDados = bancoDados; // Atribui a instância de BancoDados
     }
 
     public List<String> arquivoKeys = Arrays.asList(
@@ -143,14 +143,6 @@ public class Leitor {
     }
 
     private void inserirNoBanco(String especificacao, int quantidade, int ano, int mes, String localidade) {
-        try {
-            jdbcTemplate.update(
-                    "INSERT INTO crimes (especificacao, qtd_casos, ano, mes, localidade) VALUES (?, ?, ?, ?, ?)",
-                    especificacao, quantidade, ano, mes, localidade
-            );
-            System.out.println("[" + LocalDateTime.now().format(formatter) + "] - Inserido: " + especificacao + ", Ano: " + ano + ", Mês: " + mes + ", Casos: " + quantidade + ", Localidade: " + localidade);
-        } catch (DataAccessException e) {
-            System.err.println("Erro ao inserir no banco de dados: " + e.getMessage());
-        }
+        bancoDados.registrarCrime(especificacao, quantidade, ano, mes, localidade);
     }
 }
