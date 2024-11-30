@@ -1,5 +1,7 @@
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class BancoDados {
@@ -14,6 +16,8 @@ public class BancoDados {
         this.leitor = new Leitor(operacoesBucket, this); // Passando 'this' para BancoDados, se necessário
     }
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
     public void registrarCrime(String especificacao, int quantidade, int ano, int mes, String localidade) {
         try {
             // Inserção no banco de dados
@@ -21,7 +25,7 @@ public class BancoDados {
                     "INSERT INTO crimes (especificacao, qtd_casos, ano, mes, localidade) VALUES (?, ?, ?, ?, ?)",
                     especificacao, quantidade, ano, mes, localidade
             );
-            System.out.println("Crime registrado: " + especificacao + ", Ano: " + ano + ", Mês: " + mes);
+            System.out.println("["+ LocalDateTime.now().format(formatter) + "] - Crime registrado: " + especificacao + ", Ano: " + ano + ", Mês: " + mes + ", Localidade: "+localidade);
         } catch (Exception e) {
             System.err.println("Erro ao registrar crime: " + e.getMessage());
         }

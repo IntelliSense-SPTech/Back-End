@@ -1,6 +1,10 @@
 DBConnectionProvider.class
-Main.class
+BancoDados.class
+Crime.class
 Leitor$1.class
 OperacoesBucket.class
 Leitor.class
+Slack.class
 S3Provider.class
+SistemaIntelliSense.class
+Slack$SlackException.class
