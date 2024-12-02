@@ -15,7 +15,7 @@ import java.util.List;
 public class Slack {
 
     private static HttpClient clienteHttp = HttpClient.newHttpClient();
-    private static final String URL_MENSAGEM = "https://hooks.slack.com/services/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";
+    private static final String URL_MENSAGEM = System.getenv("URL_SLACK");
     private static final String URL_MEMBROS = "https://slack.com/api/conversations.members";
     private static final String URL_USUARIO = "https://slack.com/api/users.info";
     private static final String TOKEN_SLACK = System.getenv("TOKEN_SLACK");
