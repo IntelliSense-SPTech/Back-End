@@ -116,9 +116,9 @@ public class Leitor {
         return quantidades;
     }
 
-    private int parseStringAsInt(String value) {
+    private Integer parseStringAsInt(String value) {
         if ("...".equals(value)) {
-            return 0;
+            return null;
         }
         try {
             NumberFormat format = NumberFormat.getInstance();
@@ -129,7 +129,7 @@ public class Leitor {
             return 0;
         }
     }
-
+    
     private String definirLocalidade(String arquivoKey) {
         if (arquivoKey.contains("Grande São Paulo")) {
             return "Grande São Paulo";
