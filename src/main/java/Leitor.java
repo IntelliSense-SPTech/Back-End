@@ -63,6 +63,10 @@ public class Leitor {
                     continue;
                 }
 
+                if (ano == 2024) {
+                    System.out.println("Ignorando dados para o ano de 2024 entre os meses 8 a 12.");
+                }
+
                 for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                     Row row = sheet.getRow(rowIndex);
                     if (row != null) {
@@ -74,12 +78,16 @@ public class Leitor {
                                 int[] quantidades = extrairQuantidades(row);
                                 String localidade = definirLocalidade(arquivoKey);
 
+                                // Inserir no banco somente se o mês não for entre agosto e dezembro de 2024
                                 for (int i = 0; i < 12; i++) {
+                                    // Ignorar meses de agosto a dezembro de 2024
+                                    if (ano == 2024 && (i + 1 >= 8 && i + 1 <= 12)) {
+                                        System.out.println("Registro ignorado: Ano 2024 e mês " + (i + 1) + " não são permitidos para inserção.");
+                                        continue;
+                                    }
                                     inserirNoBanco(especificacao, quantidades[i], ano, i + 1, localidade);
                                 }
                             }
-                        } else {
-                            System.out.println("Linha " + row.getRowNum() + " está vazia ou a célula de especificação é nula.");
                         }
                     }
                 }

@@ -19,6 +19,15 @@ public class BancoDados {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public void registrarCrime(String especificacao, Integer quantidade, int ano, int mes, String localidade) {
+        if (ano == 2024 && (mes >= 8 && mes <= 12)) {
+            System.out.println("Registro ignorado: Ano 2024 e mês " + mes + " não são permitidos para inserção.");
+            return;
+        }
+
+        if ("LATROCÍNIO".equals(especificacao) && (quantidade == null || quantidade == 0)) {
+            System.out.println("Quantidade para 'LATROCÍNIO' ajustada de " + quantidade + " para 1 no mês "+mes+", do ano: "+ano);
+            quantidade = 1;
+        }
 
         if (quantidade == null) {
             System.out.println("Valor '...' encontrado na especificação: " + especificacao + " em " + localidade + " - Não será inserido no banco.");
