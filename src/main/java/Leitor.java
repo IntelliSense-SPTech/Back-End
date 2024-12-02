@@ -129,7 +129,7 @@ public class Leitor {
             return 0;
         }
     }
-    
+
     private String definirLocalidade(String arquivoKey) {
         if (arquivoKey.contains("Grande São Paulo")) {
             return "Grande São Paulo";

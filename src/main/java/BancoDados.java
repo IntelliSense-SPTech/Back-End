@@ -18,7 +18,12 @@ public class BancoDados {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    public void registrarCrime(String especificacao, int quantidade, int ano, int mes, String localidade) {
+    public void registrarCrime(String especificacao, Integer quantidade, int ano, int mes, String localidade) {
+
+        if (quantidade == null) {
+            System.out.println("Valor '...' encontrado na especificação: " + especificacao + " em " + localidade + " - Não será inserido no banco.");
+            return;
+        }
         try {
             // Inserção no banco de dados
             jdbcTemplate.update(
