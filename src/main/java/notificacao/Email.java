@@ -64,7 +64,7 @@ public class Email {
         String mensagemCorpo = criarCorpoMensagem(localAumento, crimeAumento, aumentoPercentual, localReducao, crimeReducao, reducaoPercentual);
 
         // Definir o conteúdo do e-mail com HTML
-        mensagem.setContent(mensagemCorpo, "text/html");
+        mensagem.setContent(mensagemCorpo, "text/html; charset=UTF-8");
 
         // Enviar o e-mail
         Transport.send(mensagem);
@@ -73,7 +73,7 @@ public class Email {
 
     private static String criarCorpoMensagem(String localAumento, String crimeAumento, String aumentoPercentual, String localReducao, String crimeReducao, String reducaoPercentual) {
         // Criar o texto da mensagem com formatação HTML
-        return "<html><body>" +
+        return "<html><head><meta charset=\"UTF-8\"></head><body>" +
                 "<h3><strong>Notificação de Aumento de Crimes:</strong></h3>" +
                 "<p>Notamos um aumento significativo nas ocorrências reportadas recentemente. Aqui estão os detalhes para sua análise:</p>" +
                 "<ul>" +
