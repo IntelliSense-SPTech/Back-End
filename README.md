@@ -39,6 +39,13 @@ O back-end integra diversas funções, incluindo leitura de dados, tratamento e 
    ```bash
    java -jar target/Back-End-1.0.jar
    ```
+   
+## Contato
+Para dúvidas ou sugestões, entre em contato pelo e-mail: **intellisense-sptech@outlook.com**.
+
+## Integrantes:
+- Giovanna Gomes: [GitHub](https://github.com/giovannagomeslm)
+- Jhenifer Lorrane: [GitHub](https://github.com/jheniferlorrane)
 
 ## Estrutura do Repositório
 ```bash
@@ -63,10 +70,3 @@ O back-end integra diversas funções, incluindo leitura de dados, tratamento e 
 ├── pom.xml                 # Gerenciamento de dependências Maven
 └── README.md               # Documentação do projeto
 ```
-
-## Contato
-Para dúvidas ou sugestões, entre em contato pelo e-mail: **intellisense-sptech@outlook.com**.
-
-## Integrantes:
-- Giovanna Gomes: [GitHub](https://github.com/giovannagomeslm)
-- Jhenifer Lorrane: [GitHub](https://github.com/jheniferlorrane)
