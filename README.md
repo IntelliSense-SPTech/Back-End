@@ -44,8 +44,8 @@ O back-end integra diversas funções, incluindo leitura de dados, tratamento e 
 Para dúvidas ou sugestões, entre em contato pelo e-mail: **intellisense-sptech@outlook.com**.
 
 ## Integrantes:
-- Giovanna Gomes: [GitHub](https://github.com/giovannagomeslm)
-- Jhenifer Lorrane: [GitHub](https://github.com/jheniferlorrane)
+- Giovanna Gomes: [GitHub](https://github.com/giovannagomeslm) [LinkedIn](https://www.linkedin.com/in/giovannagomes1)
+- Jhenifer Lorrane: [GitHub](https://github.com/jheniferlorrane) [LinkedIn](https://www.linkedin.com/in/jheniferanacleto)
 
 ## Estrutura do Repositório
 ```bash
