@@ -7,6 +7,9 @@ import java.util.List;
 public class BancoDados {
     private final JdbcTemplate jdbcTemplate;
     private final Leitor leitor;
+    private String fraseAumento = "";
+    private String fraseReducao = "";
+    private String assunto = "Veja o aumento e a redução dos crimes";
 
     public BancoDados() {
         DBConnectionProvider connectionProvider = new DBConnectionProvider();
@@ -55,6 +58,135 @@ public class BancoDados {
         } catch (Exception e) {
             System.err.println("Erro ao consultar crimes: " + e.getMessage());
         }
+    }
+
+    public void truncateCrimes(){
+        String sql = "TRUNCATE crimes;";
+
+        try {
+            jdbcTemplate.update(sql);
+            System.out.println("Tabelas crimes deletados.");
+        } catch (Exception e) {
+            System.err.println("Erro ao deletar tabela crimes: " + e.getMessage());
+        }
+
+    }
+
+    public void notificacaoAumentoDeCrimes() {
+        String sql = """ 
+    WITH dados_recentes AS (
+        SELECT
+            c.localidade,
+            c.especificacao,
+            c.qtd_casos,
+            c.ano,
+            c.mes,
+            ROW_NUMBER() OVER (PARTITION BY c.localidade, c.especificacao ORDER BY c.ano DESC, c.mes DESC) AS ordem_mes
+        FROM crimes c
+    ),
+    comparacao AS (
+        SELECT
+            atual.localidade,
+            atual.especificacao,
+            atual.qtd_casos AS casos_mes_atual,
+            anterior.qtd_casos AS casos_mes_anterior,
+            ROUND(((atual.qtd_casos - anterior.qtd_casos) / NULLIF(anterior.qtd_casos, 0)) * 100, 2) AS aumento_percentual
+        FROM
+            dados_recentes atual
+        LEFT JOIN
+            dados_recentes anterior
+        ON
+            atual.localidade = anterior.localidade
+            AND atual.especificacao = anterior.especificacao
+            AND atual.ordem_mes = 1
+            AND anterior.ordem_mes = 2
+        WHERE
+            anterior.qtd_casos IS NOT NULL
+            AND atual.qtd_casos > anterior.qtd_casos
+    )
+    SELECT
+        localidade,
+        especificacao AS crime,
+        aumento_percentual
+    FROM
+        comparacao
+    ORDER BY
+        aumento_percentual DESC
+    LIMIT 1;
+    """;
+
+        // Executa a consulta e captura os resultados
+        List<String> crimes = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            String localidade = rs.getString("localidade");
+            String crime = rs.getString("crime");
+            Double aumentoPercentual = rs.getDouble("aumento_percentual");
+
+            // Formata a mensagem para enviar ao Slack
+            fraseAumento =  "Localidade: " + localidade + ", Crime: " + crime + ", Aumento Percentual: " + String.format("%.2f", aumentoPercentual) + "%";
+            return "Localidade: " + localidade + ", Crime: " + crime + ", Aumento Percentual: " + String.format("%.2f", aumentoPercentual) + "%";
+        });
+
+
+        System.out.println(crimes);
+    }
+
+    public void notificacaoReducaoDeCrimes() {
+        String sql = """
+                WITH dados_recentes AS (
+                                SELECT
+                                    c.localidade,
+                                    c.especificacao,
+                                    c.qtd_casos,
+                                    c.ano,
+                                    c.mes,
+                                    ROW_NUMBER() OVER (PARTITION BY c.localidade, c.especificacao ORDER BY c.ano DESC, c.mes DESC) AS ordem_mes
+                                FROM crimes c
+                            ),
+                            comparacao AS (
+                                SELECT
+                                    atual.localidade,
+                                    atual.especificacao,
+                                    atual.qtd_casos AS casos_mes_atual,
+                                    anterior.qtd_casos AS casos_mes_anterior,
+                                    ROUND(((anterior.qtd_casos - atual.qtd_casos) / NULLIF(anterior.qtd_casos, 0)) * 100, 2) AS reducao_percentual
+                                FROM
+                                    dados_recentes atual
+                                LEFT JOIN
+                                    dados_recentes anterior
+                                ON
+                                    atual.localidade = anterior.localidade
+                                    AND atual.especificacao = anterior.especificacao
+                                    AND atual.ordem_mes = 1
+                                    AND anterior.ordem_mes = 2
+                                WHERE
+                                    anterior.qtd_casos IS NOT NULL
+                                    AND atual.qtd_casos < anterior.qtd_casos
+                            )
+                            SELECT
+                                localidade,
+                                especificacao AS crime,
+                                reducao_percentual
+                            FROM
+                                comparacao
+                            ORDER BY
+                                reducao_percentual DESC
+                            LIMIT 1;
+        """;
+
+        // Executa a consulta e captura os resultados
+        List<String> crimes = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            String localidade = rs.getString("localidade");
+            String crime = rs.getString("crime");
+            Double reducaoPercentual = rs.getDouble("reducao_percentual");
+
+            fraseReducao = "Localidade: " + localidade + ", Crime: " + crime + ", Redução Percentual: " + String.format("%.2f", reducaoPercentual) + "%";
+
+            // Formata a mensagem para enviar ao Slack
+            return "Localidade: " + localidade + ", Crime: " + crime + ", Redução Percentual: " + String.format("%.2f", reducaoPercentual) + "%";
+        });
+
+        System.out.println(crimes);
+
     }
 
     public void selecionarCrimes(String localidade) {
@@ -106,5 +238,17 @@ public class BancoDados {
                 System.err.println("Erro ao processar o arquivo: " + key);
             }
         });
+    }
+
+    public String getFraseAumento() {
+        return fraseAumento;
+    }
+
+    public String getFraseReducao() {
+        return fraseReducao;
+    }
+
+    public String getAssunto() {
+        return assunto;
     }
 }
